@@ -1,6 +1,6 @@
 [package]
 name = "tauri-plugin-brightness"
-version = "0.1.0"
+version = "0.1.1"
 description = "Control display brightness from a Tauri application."
 authors = { workspace = true }
 edition = { workspace = true }

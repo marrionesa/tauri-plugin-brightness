@@ -3792,7 +3792,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-brightness-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "ddc-hi",
  "log",
@@ -3881,7 +3881,7 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-brightness"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "log",
  "serde",

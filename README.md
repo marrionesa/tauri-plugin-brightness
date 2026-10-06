@@ -9,8 +9,9 @@ for internal laptop panels.
 
 [![crates.io](https://img.shields.io/crates/v/tauri-plugin-brightness.svg)](https://crates.io/crates/tauri-plugin-brightness)
 [![npm](https://img.shields.io/npm/v/tauri-plugin-brightness-api.svg)](https://www.npmjs.com/package/tauri-plugin-brightness-api)
-[![docs.rs](https://docs.rs/tauri-plugin-brightness/badge.svg)](https://docs.rs/tauri-plugin-brightness)
+[![CI](https://github.com/marrionesa/tauri-plugin-brightness/actions/workflows/ci.yml/badge.svg)](https://github.com/marrionesa/tauri-plugin-brightness/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
+[![Tauri 2](https://img.shields.io/badge/tauri-2.x-24c8db.svg)](https://v2.tauri.app)
 
 </div>
 
@@ -19,6 +20,18 @@ for internal laptop panels.
 > codebases inside the [`tauri-apps`](https://github.com/tauri-apps) GitHub
 > organisation are official. TAURI is a trademark of The Tauri Programme within
 > the Commons Conservancy.
+
+## Contents
+
+- [Why two crates](#why-two-crates)
+- [Install](#install)
+- [Backends](#backends)
+- [Platform support](#platform-support)
+- [Linux permissions](#linux-permissions)
+- [Documentation](#documentation)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Why two crates
 
@@ -118,6 +131,32 @@ sudo apt install ddcutil       # optional but recommended
 If no display is detected, the `diagnose` command reports which of these is
 missing and prints the command to fix it. The example application shows this in
 a panel instead of a slider that does nothing.
+
+## Documentation
+
+| Document | Read it when |
+| --- | --- |
+| [Plugin reference](crates/tauri-plugin-brightness/README.md) | Using the plugin: every command, the permission list, and troubleshooting |
+| [Engine reference](crates/tauri-brightness-core/README.md) | Using the brightness control outside Tauri |
+| [Example application](crates/tauri-plugin-brightness/examples/tauri-app/README.md) | Seeing a full tray app built with the plugin |
+| [docs/](docs/) | The project's place in the Tauri ecosystem |
+| [SECURITY.md](SECURITY.md) | Reporting a vulnerability, and the fixed ones |
+| [CHANGELOG.md](CHANGELOG.md) | What changed in each release |
+
+## Contributing
+
+Contributions are welcome. The example application doubles as the integration
+test, and hardware behaviour cannot be covered by unit tests, so please say which
+monitor and desktop environment you tested against.
+
+```sh
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the repository layout and the testing
+expectations, and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for the community
+guidelines.
 
 ## Development
 

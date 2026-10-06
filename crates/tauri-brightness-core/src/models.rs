@@ -80,6 +80,14 @@ impl MonitorId {
     ///
     /// Any textual form is accepted, including one that uses the same prefix as
     /// a different backend, because the split is done on the first hyphen.
+    ///
+    /// # Validation
+    ///
+    /// A display identifier can arrive from a webview, and the backlight
+    /// backend turns its locator into a filesystem path. The locator is
+    /// therefore restricted to a kernel device name: ASCII letters, digits,
+    /// underscores and hyphens. Anything else is rejected, which keeps
+    /// `..`, `/` and an absolute path out of the path the backend builds.
     pub fn parse(value: &str) -> crate::Result<Self> {
         let Some((prefix, locator)) = value.split_once('-') else {
             return Err(crate::Error::InvalidId(value.to_string()));
@@ -93,6 +101,19 @@ impl MonitorId {
             "backlight" => Backend::Backlight,
             _ => return Err(crate::Error::InvalidId(value.to_string())),
         };
+
+        // A DDC/CI display is addressed by a numeric index, so the type of
+        // locator is fixed by the backend.
+        if matches!(backend, Backend::Ddc | Backend::Ddcutil) && locator.parse::<usize>().is_err() {
+            return Err(crate::Error::InvalidId(value.to_string()));
+        }
+
+        // A backlight locator becomes a path component, so it has to look like
+        // a kernel device name and nothing else.
+        if backend == Backend::Backlight && !is_valid_device_name(locator) {
+            return Err(crate::Error::InvalidId(value.to_string()));
+        }
+
         Ok(Self::new(backend, locator))
     }
 }
@@ -197,6 +218,20 @@ pub struct Diagnostics {
     pub suggestions: Vec<String>,
 }
 
+/// Whether `name` is safe to use as a sysfs device name.
+///
+/// This is deliberately a whitelist rather than a check for `..` or `/`: a
+/// blacklist has to anticipate every way of writing a path traversal, while a
+/// whitelist only has to be right about what a kernel device name can contain.
+fn is_valid_device_name(name: &str) -> bool {
+    !name.is_empty()
+        && name.len() <= 64
+        && !name.starts_with('.')
+        && name
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -249,6 +284,56 @@ mod tests {
             assert!(
                 MonitorId::parse(bad).is_err(),
                 "`{bad}` should not parse as a display id"
+            );
+        }
+    }
+
+    #[test]
+    fn a_ddc_locator_must_be_a_numeric_index() {
+        assert!(MonitorId::parse("ddc-0").is_ok());
+        assert!(MonitorId::parse("ddcutil-12").is_ok());
+        assert!(
+            MonitorId::parse("ddc-../../etc").is_err(),
+            "a DDC/CI display is addressed by an index, never by a path"
+        );
+        assert!(MonitorId::parse("ddc-backlight").is_err());
+    }
+
+    #[test]
+    fn a_backlight_locator_cannot_escape_the_sysfs_directory() {
+        // Every one of these would let a caller read or write outside
+        // `/sys/class/backlight` if the locator were used as a path unchecked.
+        for attack in [
+            "backlight-../../etc/passwd",
+            "backlight-..",
+            "backlight-../../../../../../etc/cron.d/x",
+            "backlight-slash/../x",
+            "backlight-/etc/passwd",
+            "backlight-a/b",
+            "backlight-.",
+            "backlight-..",
+            "backlight-null\0byte",
+        ] {
+            assert!(
+                MonitorId::parse(attack).is_err(),
+                "`{attack}` must not be accepted as a display id"
+            );
+        }
+    }
+
+    #[test]
+    fn a_real_backlight_device_name_is_accepted() {
+        // The names the kernel actually uses, which must keep working.
+        for good in [
+            "backlight-intel_backlight",
+            "backlight-amdgpu_bl0",
+            "backlight-acpi_video0",
+            "backlight-nv_backlight",
+            "backlight-radeon_bl0",
+        ] {
+            assert!(
+                MonitorId::parse(good).is_ok(),
+                "`{good}` is a legitimate backlight device name"
             );
         }
     }

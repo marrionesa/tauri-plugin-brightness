@@ -76,9 +76,7 @@ pub fn set(device: &str, percent: u8) -> Result<()> {
         Err(error) => log::debug!("brightnessctl failed for `{device}`: {error}"),
     }
 
-    let path = PathBuf::from(BACKLIGHT_CLASS)
-        .join(device)
-        .join("brightness");
+    let path = attribute_path(device, "brightness")?;
     fs::write(&path, raw.to_string()).map_err(|error| {
         Error::Os(format!(
             "could not change the brightness of `{device}`: {error}. \
@@ -101,11 +99,37 @@ pub fn devices() -> Vec<String> {
     devices
 }
 
+/// Builds the path of a sysfs attribute of a backlight device.
+///
+/// The device name is validated again here, even though [`MonitorId::parse`]
+/// already rejects anything that is not a kernel device name. The two checks
+/// exist on purpose: the parser can be bypassed by constructing a [`MonitorId`]
+/// directly, and this is the only place where the value becomes a filesystem
+/// path. Defence in depth is cheap here and the failure mode is a write outside
+/// `/sys/class/backlight`.
+///
+/// [`MonitorId::parse`]: crate::MonitorId::parse
+fn attribute_path(device: &str, attribute: &str) -> Result<PathBuf> {
+    if !is_safe_device_name(device) {
+        return Err(Error::InvalidId(format!("backlight-{device}")));
+    }
+    Ok(PathBuf::from(BACKLIGHT_CLASS).join(device).join(attribute))
+}
+
+/// Whether `name` is safe to join onto the backlight class directory.
+fn is_safe_device_name(name: &str) -> bool {
+    !name.is_empty()
+        && name.len() <= 64
+        && !name.starts_with('.')
+        && name
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+}
+
 /// Reads the `brightness` and `max_brightness` files of a device.
 fn read_raw(device: &str) -> Option<(u32, u32)> {
-    let base = Path::new(BACKLIGHT_CLASS).join(device);
-    let max = read_number(&base.join("max_brightness"))?;
-    let current = read_number(&base.join("brightness"))?;
+    let max = read_number(&attribute_path(device, "max_brightness").ok()?)?;
+    let current = read_number(&attribute_path(device, "brightness").ok()?)?;
     Some((current, max))
 }
 
@@ -117,7 +141,7 @@ fn read_number(path: &Path) -> Option<u32> {
 /// The `type` file of a device, for example `raw` or `platform`, used to make
 /// the display name a little more informative than the raw device name.
 fn device_name(device: &str) -> Option<String> {
-    let path = Path::new(BACKLIGHT_CLASS).join(device).join("type");
+    let path = attribute_path(device, "type").ok()?;
     let kind = fs::read_to_string(path).ok()?.trim().to_string();
     if kind.is_empty() {
         None
@@ -176,5 +200,63 @@ fn set_via_brightnessctl(device: &str, percent: u8) -> Result<()> {
             "brightnessctl",
             &output.stderr,
         ))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_legitimate_device_name_is_accepted() {
+        for good in [
+            "intel_backlight",
+            "amdgpu_bl0",
+            "acpi_video0",
+            "nv_backlight",
+        ] {
+            assert!(is_safe_device_name(good), "`{good}` should be accepted");
+        }
+    }
+
+    #[test]
+    fn a_traversing_device_name_is_rejected() {
+        for attack in [
+            "../../etc/passwd",
+            "..",
+            ".",
+            "/etc/passwd",
+            "a/b",
+            "..%2f",
+            "device\0",
+            "",
+        ] {
+            assert!(
+                !is_safe_device_name(attack),
+                "`{attack}` must not be usable as a device name"
+            );
+        }
+    }
+
+    #[test]
+    fn an_attribute_path_stays_inside_the_backlight_directory() {
+        let path = attribute_path("intel_backlight", "brightness").unwrap();
+        assert_eq!(
+            path.to_string_lossy(),
+            "/sys/class/backlight/intel_backlight/brightness"
+        );
+    }
+
+    #[test]
+    fn an_attribute_path_refuses_to_escape_the_directory() {
+        // The parser already rejects these, so this proves the second layer of
+        // defence works on its own, which is what matters if a caller builds a
+        // `MonitorId` by hand.
+        for attack in ["../../etc/passwd", "..", "/etc/passwd", "a/b"] {
+            assert!(
+                attribute_path(attack, "brightness").is_err(),
+                "`{attack}` must not produce a path"
+            );
+        }
     }
 }

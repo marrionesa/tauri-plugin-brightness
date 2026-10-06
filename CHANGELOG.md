@@ -10,6 +10,17 @@ them changed, which is the convention used by the official Tauri plugins.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-06
+
+### Fixed
+
+- **Security:** a backlight display identifier such as
+  `backlight-../../etc/passwd` was accepted and turned into a path outside
+  `/sys/class/backlight`, which would have let a caller read or attempt to write
+  an arbitrary file as the user running the application. Identifiers are now
+  validated when parsed and again where the path is built. See
+  [SECURITY.md](SECURITY.md) for the details and the two tests that cover it.
+
 ## [0.1.0]
 
 Initial release.
@@ -27,5 +38,6 @@ Initial release.
 - Tray application example in `crates/tauri-plugin-brightness/examples/tauri-app`,
   including the diagnostic panel that explains missing I2C permissions.
 
-[Unreleased]: https://github.com/marrionesa/tauri-plugin-brightness/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/marrionesa/tauri-plugin-brightness/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/marrionesa/tauri-plugin-brightness/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/marrionesa/tauri-plugin-brightness/releases/tag/v0.1.0

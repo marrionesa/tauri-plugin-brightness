@@ -1,6 +1,6 @@
 [package]
 name = "tauri-brightness-core"
-version = "0.1.0"
+version = "0.1.1"
 description = "Cross-platform display brightness control: DDC/CI monitors, ddcutil and Linux backlight."
 authors = { workspace = true }
 edition = { workspace = true }
