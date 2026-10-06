@@ -1,0 +1,17 @@
+"$schema" = "schemas/schema.json"
+
+[default]
+description = """
+Default permissions for the brightness plugin.
+
+#### Granted Permissions
+
+All operations are enabled by default.
+
+"""
+permissions = [
+  "allow-list-monitors",
+  "allow-get-brightness",
+  "allow-set-brightness",
+  "allow-diagnose",
+]

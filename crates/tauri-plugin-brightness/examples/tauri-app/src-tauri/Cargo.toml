@@ -1,0 +1,30 @@
+[package]
+name = "tauri-plugin-brightness-example"
+version = "0.1.0"
+description = "Tray application example for the tauri-plugin-brightness plugin."
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+license = { workspace = true }
+publish = false
+
+[lib]
+name = "brightness_example_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { workspace = true }
+
+[dependencies]
+tauri = { workspace = true, features = ["tray-icon", "image-png"] }
+tauri-plugin-brightness = { version = "0.1.0", path = "../../.." }
+tauri-plugin-opener = "2"
+serde = { workspace = true }
+serde_json = { workspace = true }
+log = { workspace = true }
+env_logger = "0.11"
+
+[features]
+# This feature is used for production builds or when a dev server is not
+# specified, DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]

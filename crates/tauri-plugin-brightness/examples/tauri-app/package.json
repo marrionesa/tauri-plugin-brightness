@@ -1,0 +1,37 @@
+{
+  "name": "tauri-plugin-brightness-example",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Tray application example for the tauri-plugin-brightness plugin.",
+  "author": "marrionesa",
+  "license": "MIT OR Apache-2.0",
+  "homepage": "https://github.com/marrionesa/tauri-plugin-brightness#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marrionesa/tauri-plugin-brightness.git",
+    "directory": "crates/tauri-plugin-brightness/examples/tauri-app"
+  },
+  "bugs": {
+    "url": "https://github.com/marrionesa/tauri-plugin-brightness/issues"
+  },
+  "keywords": [
+    "tauri",
+    "brightness",
+    "ddc-ci",
+    "tray",
+    "linux",
+    "monitor"
+  ],
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "gen:icons": "node scripts/gen-icons.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/api": "^2",
+    "@tauri-apps/cli": "^2",
+    "@tauri-apps/plugin-brightness": "file:../..",
+    "sharp": "^0.33.5"
+  }
+}

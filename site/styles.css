@@ -1,0 +1,370 @@
+/* Landing page for tauri-plugin-brightness.
+   No framework, no build step: it is a single static file so it can be opened
+   directly or served by any host, including GitHub Pages. */
+
+:root {
+  --bg: #0f1115;
+  --bg-raised: #171a21;
+  --bg-code: #10131a;
+  --border: #262b36;
+  --text: #e7eaf0;
+  --text-dim: #a2abbb;
+  --accent: #ffb347;
+  --accent-dim: #c98a2e;
+  --link: #7cc4ff;
+  --radius: 14px;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #fbfbfd;
+    --bg-raised: #ffffff;
+    --bg-code: #f3f5f9;
+    --border: #e2e6ee;
+    --text: #1a1d24;
+    --text-dim: #5b6472;
+    --accent: #b26a00;
+    --accent-dim: #8c5200;
+    --link: #0b62c4;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  z-index: 10;
+  padding: 0.5rem 0.9rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+a {
+  color: var(--link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  border-bottom: 1px solid var(--border);
+  background:
+    radial-gradient(
+      1100px 320px at 12% -12%,
+      color-mix(in srgb, var(--accent) 16%, transparent),
+      transparent 70%
+    ),
+    var(--bg);
+  padding: 0 1.5rem 3.5rem;
+}
+
+.nav {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 1.4rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  font-size: 0.9rem;
+}
+
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  color: var(--text);
+}
+
+.hero-body {
+  max-width: 860px;
+  margin: 0 auto;
+  padding-top: 2rem;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 1.4rem;
+}
+
+.badge {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  background: var(--bg-raised);
+}
+
+h1 {
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 1.1rem;
+}
+
+.lead {
+  font-size: 1.08rem;
+  color: var(--text-dim);
+  margin: 0 0 1.8rem;
+  max-width: 68ch;
+}
+
+.cta {
+  margin-bottom: 1.8rem;
+}
+
+.cmd {
+  margin: 0;
+  display: inline-block;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.cmd code {
+  color: var(--accent);
+  font-size: 0.9rem;
+  line-height: 1.9;
+}
+
+.disclaimer {
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  border-left: 3px solid var(--accent-dim);
+  padding: 0.15rem 0 0.15rem 1rem;
+  margin: 0;
+  max-width: 74ch;
+}
+
+/* ---------- Sections ---------- */
+
+.section {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 3.4rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.section:last-of-type {
+  border-bottom: none;
+}
+
+h2 {
+  font-size: 1.55rem;
+  letter-spacing: -0.015em;
+  margin: 0 0 0.6rem;
+}
+
+.section-lead {
+  color: var(--text-dim);
+  margin: 0 0 1.9rem;
+  max-width: 76ch;
+}
+
+.grid {
+  display: grid;
+  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.grid.two {
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+}
+
+.grid.three {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.35rem;
+  min-width: 0;
+}
+
+.card.wide {
+  margin-top: 1.1rem;
+}
+
+.card h3 {
+  font-size: 1rem;
+  margin: 0 0 0.8rem;
+  font-weight: 600;
+}
+
+.card p {
+  margin: 0.75rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+.card pre {
+  margin: 0;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+
+.card pre code {
+  color: var(--text);
+}
+
+.note {
+  font-size: 0.86rem;
+  color: var(--text-dim);
+}
+
+/* ---------- Tables ---------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 0.4rem 0 0;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---------- FAQ ---------- */
+
+.faq {
+  margin: 0;
+}
+
+.faq dt {
+  font-weight: 600;
+  margin-top: 1.1rem;
+  font-size: 0.94rem;
+}
+
+.faq dt:first-child {
+  margin-top: 0;
+}
+
+.faq dd {
+  margin: 0.3rem 0 0;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ---------- Tree ---------- */
+
+.tree {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.2rem 1.4rem;
+  overflow-x: auto;
+  font-size: 0.83rem;
+  line-height: 1.85;
+  margin: 0;
+}
+
+/* ---------- Footer ---------- */
+
+.footer {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3.5rem;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.footer p {
+  margin: 0 0 0.4rem;
+}
+
+.trademark {
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

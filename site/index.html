@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>tauri-plugin-brightness — display brightness control for Tauri</title>
+    <meta
+      name="description"
+      content="Control display brightness from a Tauri application: DDC/CI for external monitors, ddcutil for NVIDIA and docks, kernel backlight for internal laptop panels."
+    />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" href="site/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="site/styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <header class="hero">
+      <nav class="nav" aria-label="Main">
+        <span class="brand">tauri-plugin-brightness</span>
+        <span class="nav-links">
+          <a href="#install">Install</a>
+          <a href="#usage">Usage</a>
+          <a href="#backends">Backends</a>
+          <a href="#troubleshooting">Troubleshooting</a>
+          <a href="crates/tauri-plugin-brightness/README.md">Docs</a>
+          <a href="https://github.com/marrionesa/tauri-plugin-brightness">GitHub</a>
+        </span>
+      </nav>
+
+      <div class="hero-body">
+        <p class="badges">
+          <span class="badge">crates.io</span>
+          <span class="badge">npm</span>
+          <span class="badge">MIT OR Apache-2.0</span>
+          <span class="badge">Tauri 2</span>
+        </p>
+        <h1>Control display brightness from a Tauri application.</h1>
+        <p class="lead">
+          DDC/CI for external monitors, <code>ddcutil</code> for NVIDIA
+          proprietary drivers and docks, kernel backlight for internal laptop
+          panels. One API, three backends, and diagnostics that explain what to
+          fix when a display is not detected.
+        </p>
+
+        <div class="cta">
+          <pre class="cmd"><code>cargo add tauri-plugin-brightness
+npm add @tauri-apps/plugin-brightness</code></pre>
+        </div>
+
+        <p class="disclaimer">
+          <strong>Not an official Tauri plugin.</strong> It follows the Tauri
+          plugin conventions, so it can be adopted upstream, but only codebases
+          inside the
+          <a href="https://github.com/tauri-apps">tauri-apps</a> organisation are
+          official. TAURI is a trademark of The Tauri Programme within the
+          Commons Conservancy.
+        </p>
+      </div>
+    </header>
+
+    <main id="main">
+      <section id="install" class="section">
+        <h2>Install</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>1 · Add the crates</h3>
+            <pre><code>[dependencies]
+tauri-plugin-brightness = "0.1.0"</code></pre>
+            <p>
+              The engine lives in
+              <code>tauri-brightness-core</code>, a crate with no Tauri
+              dependency, so it can also be used from a plain Rust program.
+            </p>
+          </article>
+
+          <article class="card">
+            <h3>2 · Register the plugin</h3>
+            <pre><code>tauri::Builder::default()
+    .plugin(tauri_plugin_brightness::init())
+    .run(tauri::generate_context!())
+    .expect("error while running tauri application");</code></pre>
+          </article>
+
+          <article class="card">
+            <h3>3 · Allow its commands</h3>
+            <pre><code>{
+  "permissions": ["brightness:default"]
+}</code></pre>
+            <p>
+              Narrower sets are available, such as
+              <code>brightness:allow-set-brightness</code> alone for an
+              application that should change brightness but not read it.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="usage" class="section">
+        <h2>Usage</h2>
+        <div class="grid two">
+          <article class="card">
+            <h3>JavaScript</h3>
+            <pre><code>import {
+  diagnose,
+  listMonitors,
+  setBrightness
+} from '@tauri-apps/plugin-brightness'
+
+const monitors = await listMonitors()
+
+if (monitors.length === 0) {
+  // Explains which permission is missing
+  // instead of failing silently.
+  const report = await diagnose()
+  console.warn(report.suggestions.join('\n'))
+} else {
+  await setBrightness(monitors[0].id, 50)
+}</code></pre>
+          </article>
+
+          <article class="card">
+            <h3>Rust</h3>
+            <pre><code>use tauri_plugin_brightness::BrightnessExt;
+
+tauri::Builder::default()
+    .plugin(tauri_plugin_brightness::init())
+    .setup(|app| {
+        for monitor in app.brightness().list_monitors() {
+            println!(
+                "{} is at {}%",
+                monitor.name,
+                monitor.brightness_percent()
+            );
+        }
+        Ok(())
+    });</code></pre>
+          </article>
+        </div>
+
+        <article class="card wide">
+          <h3>Display identifiers</h3>
+          <p>
+            A display is addressed by a string that stays valid for the lifetime
+            of a boot, and its prefix says which backend drives it:
+          </p>
+          <table>
+            <thead>
+              <tr><th>Identifier</th><th>Backend</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>ddc-0</code>, <code>ddc-1</code></td><td>DDC/CI over I2C, in process</td></tr>
+              <tr><td><code>ddcutil-1</code>, <code>ddcutil-2</code></td><td>The <code>ddcutil</code> command line tool</td></tr>
+              <tr><td><code>backlight-intel_backlight</code></td><td>Linux kernel backlight interface</td></tr>
+            </tbody>
+          </table>
+          <p class="note">
+            Always use the identifiers returned by <code>listMonitors()</code>.
+            Which backend wins depends on the machine, so they cannot be
+            predicted.
+          </p>
+        </article>
+      </section>
+
+      <section id="backends" class="section">
+        <h2>Backends</h2>
+        <p class="section-lead">
+          Three backends are tried in order. The first is preferred because it
+          stays in process; the second is the only one that reaches NVIDIA
+          proprietary drivers; the third covers hardware that is not DDC/CI at
+          all.
+        </p>
+        <div class="grid three">
+          <article class="card">
+            <h3>DDC/CI over I2C</h3>
+            <p>
+              Pure Rust through <code>ddc-hi</code>. No external process, so it
+              is the fastest and the default.
+            </p>
+            <p class="note">External monitors on Linux, Windows and macOS.</p>
+          </article>
+          <article class="card">
+            <h3>ddcutil</h3>
+            <p>
+              The standard Linux DDC/CI tool. Slower, because every call spawns a
+              process, but it handles what raw I2C access cannot.
+            </p>
+            <p class="note">NVIDIA proprietary drivers, USB-C docks, DisplayLink.</p>
+          </article>
+          <article class="card">
+            <h3>Kernel backlight</h3>
+            <p>
+              <code>/sys/class/backlight</code>, written through the
+              <code>org.freedesktop.login1</code> D-Bus interface, which needs no
+              privileges.
+            </p>
+            <p class="note">Internal laptop panels, always enumerated as well.</p>
+          </article>
+        </div>
+
+        <article class="card wide">
+          <h3>Platform support</h3>
+          <table>
+            <thead>
+              <tr><th>Platform</th><th>Supported</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Linux</td><td>✓</td><td>DDC/CI, <code>ddcutil</code> and kernel backlight</td></tr>
+              <tr><td>Windows</td><td>Partial</td><td>DDC/CI through the Windows API backend of <code>ddc-hi</code></td></tr>
+              <tr><td>macOS</td><td>Partial</td><td>DDC/CI through the macOS backend of <code>ddc-hi</code></td></tr>
+              <tr><td>Android</td><td>✗</td><td>Not a desktop concept</td></tr>
+              <tr><td>iOS</td><td>✗</td><td>Not a desktop concept</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <section id="troubleshooting" class="section">
+        <h2>Troubleshooting</h2>
+        <p class="section-lead">
+          Brightness control depends on permissions that are easy to get wrong,
+          so the plugin ships a diagnostic command rather than failing silently.
+          It reports exactly which piece is missing.
+        </p>
+        <div class="grid two">
+          <article class="card">
+            <h3>External monitors on Linux</h3>
+            <pre><code>sudo modprobe i2c-dev
+sudo usermod -aG i2c "$USER"   # then log out and back in
+sudo apt install ddcutil       # optional but recommended</code></pre>
+          </article>
+          <article class="card">
+            <h3>Internal laptop panels</h3>
+            <p>
+              Nothing to configure. They are controlled through D-Bus without
+              privileges, the same path GNOME, KDE and COSMIC use.
+            </p>
+          </article>
+        </div>
+        <article class="card wide">
+          <h3>Frequently reported symptoms</h3>
+          <dl class="faq">
+            <dt>The slider moves but the display does not change.</dt>
+            <dd>
+              Check that DDC/CI is enabled in the monitor's own on-screen menu,
+              then run <code>ddcutil detect</code>. If it lists displays, the
+              plugin works with the same permissions.
+            </dd>
+            <dt>No displays are detected on NVIDIA.</dt>
+            <dd>
+              Install <code>ddcutil</code> and make sure the <code>i2c-dev</code>
+              module is loaded, then log out and back in.
+            </dd>
+            <dt>A display disappeared from the list.</dt>
+            <dd>
+              Displays are re-enumerated on every call, so unplugging a monitor
+              removes it immediately. Plug it back in and call
+              <code>listMonitors()</code> again.
+            </dd>
+          </dl>
+        </article>
+      </section>
+
+      <section id="structure" class="section">
+        <h2>Repository layout</h2>
+        <p class="section-lead">
+          The engine is published separately on purpose: brightness control is
+          useful outside a webview, and keeping the Tauri dependency out of the
+          engine is what makes that possible.
+        </p>
+        <pre class="tree"><code>crates/tauri-brightness-core/              Rust engine, no Tauri dependency
+crates/tauri-plugin-brightness/            the Tauri 2 plugin
+  guest-js/                                TypeScript bindings
+  permissions/                             ACL definitions
+  examples/tauri-app/                      tray application example
+Cargo.toml                                 the workspace</code></pre>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>
+        MIT OR Apache-2.0 · built by
+        <a href="https://github.com/marrionesa">marrionesa</a>.
+      </p>
+      <p class="trademark">
+        TAURI is a trademark of The Tauri Programme within the Commons
+        Conservancy. <a href="https://tauri.app">https://tauri.app</a>
+      </p>
+    </footer>
+  </body>
+</html>

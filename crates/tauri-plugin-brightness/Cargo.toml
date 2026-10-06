@@ -1,0 +1,54 @@
+[package]
+name = "tauri-plugin-brightness"
+version = "0.1.0"
+description = "Control display brightness from a Tauri application."
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+homepage = "https://github.com/marrionesa/tauri-plugin-brightness"
+documentation = "https://docs.rs/tauri-plugin-brightness"
+readme = "README.md"
+keywords = ["tauri", "tauri-plugin", "brightness", "ddc-ci", "display"]
+categories = ["gui", "hardware-support"]
+links = "tauri-plugin-brightness"
+exclude = [
+  "/banner.png",
+  "/examples",
+  "/guest-js",
+  "/node_modules",
+  "/package.json",
+  "/package-lock.json",
+  "/rollup.config.js",
+  "/tsconfig.json",
+]
+
+[package.metadata.platforms.support]
+windows = { level = "partial", notes = "DDC/CI through `ddc-hi` with the Windows API backend." }
+linux = { level = "full", notes = "DDC/CI and `ddcutil` for external monitors, `/sys/class/backlight` for internal panels." }
+macos = { level = "partial", notes = "DDC/CI through `ddc-hi` with the macOS backend." }
+android = { level = "none", notes = "" }
+ios = { level = "none", notes = "" }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[lib]
+name = "tauri_plugin_brightness"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[build-dependencies]
+tauri-plugin = { workspace = true, features = ["build"] }
+
+[dependencies]
+tauri = { workspace = true }
+tauri-brightness-core = { version = "0.1.0", path = "../tauri-brightness-core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+log = { workspace = true }
+
+[dev-dependencies]
+tauri = { workspace = true, features = ["test"] }

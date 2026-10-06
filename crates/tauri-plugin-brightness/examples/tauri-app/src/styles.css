@@ -1,0 +1,421 @@
+/* ============================================================
+   Brightness Control — popup styles
+   Polished frameless Tauri panel.
+   No build step — plain CSS, cross-browser slider styling.
+   ============================================================ */
+
+/* ---------- Reset & base ---------- */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  color: #e9ecef;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  cursor: default;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+/* ---------- App panel ---------- */
+.card {
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(27, 27, 27, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+/* ---------- View switching (main <-> settings) ---------- */
+.view {
+  display: none;
+}
+
+.view.active {
+  display: block;
+  animation: view-in 0.18s ease-out;
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- Header ----------
+   Main view:  [Brightness]  ............  [⚙ Settings]
+   Settings:   [← Back] [Settings]
+   The Settings button uses margin-left:auto to push itself to the
+   right edge; everything else groups naturally on the left. */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  min-height: 30px;
+}
+
+.title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #d6d6d6;
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
+/* In the main view, push the settings button to the far right. */
+#view-main .settings-btn {
+  margin-left: auto;
+}
+
+/* ---------- Settings / Back pill buttons ---------- */
+.settings-btn,
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 34px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  color: #cfd2d4;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.settings-btn:hover,
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.settings-btn:active,
+.back-btn:active {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.settings-btn:focus-visible,
+.back-btn:focus-visible {
+  outline: 2px solid rgba(74, 144, 226, 0.6);
+  outline-offset: 1px;
+}
+
+.gear-icon {
+  flex-shrink: 0;
+}
+
+/* ---------- Monitor sections ---------- */
+.monitors {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.monitor-placeholder {
+  font-size: 13px;
+  color: #a8abad;
+  padding: 6px 0;
+}
+
+.monitor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0;
+  background: transparent;
+}
+
+.monitor-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #d8d8d8;
+}
+
+.sun-icon {
+  flex-shrink: 0;
+  /* Slightly muted dark slate to match reference image */
+  color: #bfc3c5;
+}
+
+.monitor-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #d8d8d8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Custom range slider (cross-browser) ----------
+   The fill width is driven by a CSS variable `--fill` (e.g. "65%")
+   set from JS on every input event. The track uses a linear-gradient
+   that switches color at exactly that percentage. */
+.brightness-slider {
+  /* CSS custom props (overridable per-input from JS) */
+  --fill: 50%;
+  --fill-color: #6bcfbd;
+  --unfill-color: rgba(255, 255, 255, 0.22);
+  --thumb-size: 18px;
+  --track-height: 6px;
+
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: var(--thumb-size); /* tall enough for thumb */
+  background: transparent;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* --- WebKit / Chromium (Tauri webview uses this) --- */
+.brightness-slider::-webkit-slider-runnable-track {
+  height: var(--track-height);
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--fill-color) 0%,
+    var(--fill-color) var(--fill),
+    var(--unfill-color) var(--fill),
+    var(--unfill-color) 100%
+  );
+}
+
+.brightness-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  /* Vertically center thumb on the track */
+  margin-top: calc((var(--track-height) - var(--thumb-size)) / 2);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.brightness-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.3);
+}
+
+.brightness-slider:focus {
+  outline: none;
+}
+
+/* --- Firefox (for standalone browser testing) --- */
+.brightness-slider::-moz-range-track {
+  height: var(--track-height);
+  border-radius: 999px;
+  background: var(--unfill-color);
+}
+
+.brightness-slider::-moz-range-progress {
+  height: var(--track-height);
+  border-radius: 999px;
+  background: var(--fill-color);
+}
+
+.brightness-slider::-moz-range-thumb {
+  width: var(--thumb-size);
+  height: var(--thumb-size);
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  cursor: pointer;
+}
+
+/* ---------- Settings view ---------- */
+.settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.setting-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #d8d8d8;
+}
+
+/* ---------- iOS-style switch ---------- */
+.switch {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.switch-checkbox {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2; /* above the visual slider so clicks register */
+}
+
+.switch-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(120, 130, 170, 0.5);
+  border-radius: 999px;
+  transition: background 0.18s ease;
+  pointer-events: none;
+}
+
+.switch-slider::before {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 3px;
+  left: 3px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  transition: transform 0.18s ease;
+}
+
+.switch-checkbox:checked + .switch-slider {
+  background: #6bcfbd;
+}
+
+.switch-checkbox:checked + .switch-slider::before {
+  transform: translateX(18px);
+}
+
+.switch-checkbox:focus-visible + .switch-slider {
+  outline: 2px solid rgba(74, 144, 226, 0.6);
+  outline-offset: 2px;
+}
+
+/* ---------- Native select, restyled ---------- */
+.step-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
+  padding: 5px 28px 5px 10px;
+  font-family: inherit;
+  font-size: 13px;
+  color: #e8e8e8;
+  cursor: pointer;
+  /* Inline chevron SVG */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%232c3e50' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.step-select:hover {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.step-select:focus {
+  outline: none;
+  border-color: rgba(74, 144, 226, 0.6);
+}
+
+/* ---------- About section ---------- */
+.about {
+  margin-top: 10px;
+  padding: 12px 8px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.about-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.about-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e2e2;
+}
+
+.about-version {
+  font-size: 12px;
+  color: #a8abad;
+}
+
+.about-note {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: #a8abad;
+}
+
+.about-credit {
+  margin: 0 0 10px;
+  color: #b8bbbd;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.about-credit a {
+  color: #8bdacb;
+  text-decoration: none;
+}
+
+.about-credit a:hover {
+  text-decoration: underline;
+}

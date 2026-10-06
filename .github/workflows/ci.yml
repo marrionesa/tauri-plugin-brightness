@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libgtk-3-dev \
+            libxdo-dev \
+            libssl-dev \
+            build-essential \
+            file \
+            wget
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        run: cargo fmt --all --check
+
+      - name: Run clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Run tests
+        run: cargo test --workspace
+
+  guest-js:
+    name: JavaScript bindings
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: crates/tauri-plugin-brightness
+        run: npm install
+
+      - name: Build bindings
+        working-directory: crates/tauri-plugin-brightness
+        run: npm run build
+
+      - name: Check the committed IIFE bundle is up to date
+        run: |
+          if ! git diff --quiet -- crates/tauri-plugin-brightness/api-iife.js; then
+            echo "api-iife.js is out of date. Run 'npm run build' and commit the result."
+            git diff --stat -- crates/tauri-plugin-brightness/api-iife.js
+            exit 1
+          fi
+
+  package:
+    name: Package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Verify the engine can be packaged
+        # A full dry run, including compilation and the registry upload check.
+        # The engine has no unpublished dependency, so this always works.
+        run: cargo publish --dry-run -p tauri-brightness-core
+
+      - name: Inspect the plugin archive
+        # The plugin cannot be packaged until the engine is on crates.io, because
+        # Cargo resolves the dependency through the registry when building the
+        # archive. The file list can still be checked, which is what catches the
+        # mistakes that actually matter: leaked build output and stray files.
+        run: |
+          cargo package --list --allow-dirty -p tauri-plugin-brightness \
+            | grep -v '^warning' > /tmp/plugin-files.txt
+          cat /tmp/plugin-files.txt
+
+          fail=0
+          for pattern in node_modules target/ 'package-lock.json' 'guest-js/'; do
+            if grep -q "$pattern" /tmp/plugin-files.txt; then
+              echo "::error::the plugin archive would contain '$pattern'"
+              fail=1
+            fi
+          done
+
+          # These must always be shipped, because build.rs embeds the bundle and
+          # the permissions are what make the commands callable.
+          for required in api-iife.js build.rs permissions/default.toml dist-js/index.js; do
+            if ! grep -qx "$required" /tmp/plugin-files.txt; then
+              echo "::error::the plugin archive is missing '$required'"
+              fail=1
+            fi
+          done
+
+          exit $fail

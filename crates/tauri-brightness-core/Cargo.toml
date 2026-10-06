@@ -1,0 +1,39 @@
+[package]
+name = "tauri-brightness-core"
+version = "0.1.0"
+description = "Cross-platform display brightness control: DDC/CI monitors, ddcutil and Linux backlight."
+authors = { workspace = true }
+edition = { workspace = true }
+rust-version = { workspace = true }
+license = { workspace = true }
+repository = { workspace = true }
+homepage = "https://github.com/marrionesa/tauri-plugin-brightness"
+documentation = "https://docs.rs/tauri-brightness-core"
+readme = "README.md"
+keywords = ["brightness", "ddc-ci", "mccs", "backlight", "monitor"]
+categories = ["hardware-support", "os::linux-apis"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[package.metadata.platforms.support]
+windows = { level = "partial", notes = "DDC/CI through `ddc-hi` with the Windows API backend." }
+linux = { level = "full", notes = "" }
+macos = { level = "partial", notes = "DDC/CI through `ddc-hi` with the macOS backend." }
+android = { level = "none", notes = "" }
+ios = { level = "none", notes = "" }
+
+[dependencies]
+ddc-hi = { version = "0.4", default-features = false, features = [
+  "ddc-i2c",
+  "ddc-winapi",
+  "nvapi",
+  "ddc-macos",
+] }
+serde = { workspace = true }
+thiserror = { workspace = true }
+log = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

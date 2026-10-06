@@ -1,0 +1,32 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/tauri-brightness-core",
+  "crates/tauri-plugin-brightness",
+  "crates/tauri-plugin-brightness/examples/tauri-app/src-tauri",
+]
+
+[workspace.package]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+# Minimum supported Rust version, driven by `tauri` 2.12, which requires 1.90.
+rust-version = "1.90"
+authors = ["marrionesa"]
+repository = "https://github.com/marrionesa/tauri-plugin-brightness"
+
+[workspace.dependencies]
+tauri = { version = "2" }
+tauri-build = { version = "2" }
+tauri-plugin = { version = "2" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+log = "0.4"
+
+# Default to small, optimized release binaries.
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+incremental = false
+opt-level = "s"

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Brightness Control",
+  "version": "0.1.0",
+  "identifier": "com.github.marrionesa.brightnesscontrol",
+  "build": {
+    "frontendDist": "../src",
+    "beforeDevCommand": "",
+    "beforeBuildCommand": ""
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Brightness Control",
+        "width": 360,
+        "height": 300,
+        "decorations": false,
+        "transparent": true,
+        "resizable": false,
+        "skipTaskbar": true,
+        "visible": false,
+        "alwaysOnTop": true,
+        "center": false,
+        "shadow": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Utility",
+    "copyright": "Copyright 2026 marrionesa",
+    "homepage": "https://github.com/marrionesa/tauri-plugin-brightness",
+    "shortDescription": "Monitor brightness control",
+    "longDescription": "Example tray application for tauri-plugin-brightness, controlling DDC/CI external monitor brightness and internal panel backlight.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.png"
+    ]
+  },
+  "plugins": {}
+}

@@ -1,0 +1,81 @@
+name: Bug report
+description: Report something that does not work
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report.
+
+        Brightness control depends on hardware permissions that are easy to get
+        wrong, so please include the diagnostic output below. It is the fastest
+        way to tell a real bug from a missing permission.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: The exact steps, and whether it happens every time.
+      placeholder: |
+        1. Run the example application
+        2. Move the slider of ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostic output
+      description: |
+        Run `cargo run --example probe` in `crates/tauri-brightness-core`, or
+        call the `diagnose` command, and paste the result here.
+      render: text
+    validations:
+      required: true
+
+  - type: dropdown
+    id: display-type
+    attributes:
+      label: Which display is affected
+      options:
+        - External monitor over HDMI or DisplayPort
+        - External monitor over USB-C or a dock
+        - Internal laptop panel
+        - All displays
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      description: The plugin version, and the output of `rustc --version` and `cargo tauri --version`.
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Operating system and desktop environment
+      description: For example, Pop!_OS 24.04 with COSMIC on Wayland, or Windows 11.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I have pasted the diagnostic output above
+          required: true
+        - label: I removed any private information such as serial numbers
+          required: true

@@ -1,0 +1,57 @@
+name: Feature request
+description: Suggest an improvement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the plugin. Please describe the problem you
+        are trying to solve, not only the solution you have in mind.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that the plugin makes hard or impossible?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What would the API or behaviour look like? A code snippet is welcome.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Other approaches, and why you ruled them out.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - DDC/CI backend
+        - ddcutil backend
+        - Kernel backlight backend
+        - Diagnostics
+        - JavaScript bindings
+        - Rust API
+        - Permissions
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Hardware involved
+      description: |
+        If the request is about a specific display or GPU, describe it and
+        include the diagnostic output, because most hardware differences cannot
+        be reproduced on another machine.
