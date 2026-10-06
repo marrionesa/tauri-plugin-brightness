@@ -23,7 +23,7 @@ var core = require('@tauri-apps/api/core');
  *
  * @example
  * ```typescript
- * import { listMonitors } from '@tauri-apps/plugin-brightness'
+ * import { listMonitors } from 'tauri-plugin-brightness-api'
  *
  * const monitors = await listMonitors()
  * for (const monitor of monitors) {
@@ -42,7 +42,7 @@ async function listMonitors() {
  *
  * @example
  * ```typescript
- * import { getBrightness } from '@tauri-apps/plugin-brightness'
+ * import { getBrightness } from 'tauri-plugin-brightness-api'
  *
  * const { brightness, max, brightnessPercent } = await getBrightness('ddc-0')
  * console.log(`${brightnessPercent}% (${brightness} of ${max})`)
@@ -62,7 +62,7 @@ async function getBrightness(id) {
  *
  * @example
  * ```typescript
- * import { setBrightness } from '@tauri-apps/plugin-brightness'
+ * import { setBrightness } from 'tauri-plugin-brightness-api'
  *
  * await setBrightness('ddc-0', 50)
  * ```
@@ -80,7 +80,7 @@ async function setBrightness(id, value) {
  *
  * @example
  * ```typescript
- * import { diagnose } from '@tauri-apps/plugin-brightness'
+ * import { diagnose } from 'tauri-plugin-brightness-api'
  *
  * const report = await diagnose()
  * if (!report.ddcutilAvailable) {

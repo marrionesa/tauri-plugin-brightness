@@ -8,7 +8,7 @@ DDC/CI for external monitors, `ddcutil` for NVIDIA and docks, kernel backlight
 for internal laptop panels.
 
 [![crates.io](https://img.shields.io/crates/v/tauri-plugin-brightness.svg)](https://crates.io/crates/tauri-plugin-brightness)
-[![npm](https://img.shields.io/npm/v/@tauri-apps/plugin-brightness.svg)](https://www.npmjs.com/package/@tauri-apps/plugin-brightness)
+[![npm](https://img.shields.io/npm/v/tauri-plugin-brightness-api.svg)](https://www.npmjs.com/package/tauri-plugin-brightness-api)
 [![docs.rs](https://docs.rs/tauri-plugin-brightness/badge.svg)](https://docs.rs/tauri-plugin-brightness)
 [![license](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
 
@@ -29,14 +29,14 @@ own and the plugin is a thin layer over it:
 | --- | --- |
 | [`tauri-brightness-core`](crates/tauri-brightness-core) | The engine. No Tauri, no GUI toolkit. Use it from any Rust program. |
 | [`tauri-plugin-brightness`](crates/tauri-plugin-brightness) | The Tauri 2 plugin: commands, permissions, Rust API. |
-| [`@tauri-apps/plugin-brightness`](crates/tauri-plugin-brightness/guest-js) | Typed JavaScript bindings. |
+| [`tauri-plugin-brightness-api`](crates/tauri-plugin-brightness/guest-js) | Typed JavaScript bindings. |
 | [`examples/tauri-app`](crates/tauri-plugin-brightness/examples/tauri-app) | Tray application that uses every feature, including the diagnostic panel. |
 
 ## Install
 
 ```sh
 cargo add tauri-plugin-brightness
-npm add @tauri-apps/plugin-brightness
+npm add tauri-plugin-brightness-api
 ```
 
 Register the plugin and allow its commands:
@@ -61,7 +61,7 @@ import {
   diagnose,
   listMonitors,
   setBrightness
-} from '@tauri-apps/plugin-brightness'
+} from 'tauri-plugin-brightness-api'
 
 const monitors = await listMonitors()
 

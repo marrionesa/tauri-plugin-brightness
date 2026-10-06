@@ -63,6 +63,22 @@ cd crates/tauri-plugin-brightness
 npm publish
 ```
 
+### The npm package name
+
+The package is `tauri-plugin-brightness-api`, the unscoped convention Tauri
+documents for plugins outside the `tauri-apps` organisation.
+
+The scoped name `@tauri-apps/plugin-brightness`, which the official plugins use,
+**cannot be published to**: the `@tauri-apps` scope belongs to the Tauri team.
+`npm publish` against it would fail with a permission error, and attempting it
+would be claiming a scope that is not ours. The scoped name is what the package
+would become if the plugin were adopted upstream; until then, the unscoped name
+is the correct one.
+
+If the scope owner is ever changed, three things move together:
+`name` in `crates/tauri-plugin-brightness/package.json`, the install commands in
+the READMEs, and the badge in the root `README.md`.
+
 ## After publishing
 
 - Tag the release: `git tag vX.Y.Z && git push --tags`.

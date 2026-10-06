@@ -17,8 +17,16 @@ import typescript from '@rollup/plugin-typescript'
 
 const pkg = JSON.parse(readFileSync(join(cwd(), 'package.json'), 'utf8'))
 
-const pluginName = pkg.name.replace('@tauri-apps/plugin-', '')
-const iifeVarName = `__TAURI_PLUGIN_${pluginName.replace('-', '_').toUpperCase()}__`
+// The npm name is `tauri-plugin-{name}-api`, the unscoped convention Tauri
+// documents. The scoped form `@tauri-apps/plugin-{name}` is what the official
+// plugins use, but that scope belongs to the Tauri team, so both shapes are
+// handled here and only the plugin name itself is kept.
+const pluginName = pkg.name
+  .replace(/^@[^/]+\/plugin-/, '')
+  .replace(/^tauri-plugin-/, '')
+  .replace(/-api$/, '')
+
+const iifeVarName = `__TAURI_PLUGIN_${pluginName.replace(/-/g, '_').toUpperCase()}__`
 const jsGlobalName = pluginName.replace(/-./g, (x) => x[1].toUpperCase())
 
 const onwarn = (warning) => {

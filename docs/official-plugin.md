@@ -33,7 +33,11 @@ The naming conventions themselves are permitted. The policy requires using them
 correctly, not avoiding them:
 
 - The crate is `tauri-plugin-brightness`, the prefix Tauri reserves for plugins.
-- The npm package is `@tauri-apps/plugin-brightness`, the scope convention.
+- The npm package is `tauri-plugin-brightness-api`, the unscoped convention Tauri
+  documents for plugins that are not in the `tauri-apps` organisation. The
+  scoped alternative, `@tauri-apps/plugin-{name}`, cannot be used, because the
+  `@tauri-apps` scope belongs to the Tauri team; claiming it would be a
+  different and more serious problem than the naming question.
 - Neither registers a domain containing the mark.
 
 ## What "adoptable" means here
@@ -66,6 +70,7 @@ hidden:
 | Difference | Why |
 | --- | --- |
 | The engine is a separate crate, `tauri-brightness-core` | Brightness control is useful outside a webview, and keeping Tauri out of the engine is what makes that possible. Upstream plugins are single crates, so this would have to be folded in or kept as a twin release during adoption. |
+| The npm package is `tauri-plugin-brightness-api`, not `@tauri-apps/plugin-brightness` | The scoped name is the convention for plugins inside the `tauri-apps` organisation. The scope belongs to the Tauri team and cannot be published to by anyone else, so the unscoped name is the correct one for an external plugin. Adoption upstream would move it into the scope. |
 | `edition = "2021"` | `plugins-workspace` uses edition 2024 and Rust 1.90. The edition can be raised, but the workspace as a whole is not on edition 2024 yet. |
 | No `android/` or `ios/` project | Mobile is declared `none` in `platforms.support`, because display brightness is a desktop concept. Upstream plugins that declare mobile support ship those projects. |
 

@@ -110,7 +110,7 @@ await invoke("plugin:brightness|diagnose")
 An application with a bundler would instead import the typed bindings:
 
 ```typescript
-import { listMonitors, setBrightness } from '@tauri-apps/plugin-brightness'
+import { listMonitors, setBrightness } from 'tauri-plugin-brightness-api'
 ```
 
 The capability grants the plugin commands to the main window:

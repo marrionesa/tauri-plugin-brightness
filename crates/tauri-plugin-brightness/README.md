@@ -43,11 +43,11 @@ You can install the JavaScript Guest bindings using your preferred JavaScript
 package manager:
 
 ```sh
-pnpm add @tauri-apps/plugin-brightness
+pnpm add tauri-plugin-brightness-api
 # or
-npm add @tauri-apps/plugin-brightness
+npm add tauri-plugin-brightness-api
 # or
-yarn add @tauri-apps/plugin-brightness
+yarn add tauri-plugin-brightness-api
 ```
 
 ## Usage
@@ -84,7 +84,7 @@ import {
   diagnose,
   listMonitors,
   setBrightness
-} from '@tauri-apps/plugin-brightness'
+} from 'tauri-plugin-brightness-api'
 
 const monitors = await listMonitors()
 for (const monitor of monitors) {

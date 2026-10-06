@@ -22,7 +22,7 @@ Initial release.
 - `tauri-plugin-brightness` crate with the `list_monitors`, `get_brightness`,
   `set_brightness` and `diagnose` commands, Tauri permission definitions and a
   Rust API behind the `BrightnessExt` extension trait.
-- `@tauri-apps/plugin-brightness` npm package with typed JavaScript bindings,
+- `tauri-plugin-brightness-api` npm package with typed JavaScript bindings,
   including an IIFE bundle for applications built with `withGlobalTauri`.
 - Tray application example in `crates/tauri-plugin-brightness/examples/tauri-app`,
   including the diagnostic panel that explains missing I2C permissions.

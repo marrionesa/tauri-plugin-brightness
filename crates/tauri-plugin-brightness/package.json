@@ -1,11 +1,9 @@
 {
-  "name": "@tauri-apps/plugin-brightness",
+  "name": "tauri-plugin-brightness-api",
   "version": "0.1.0",
   "description": "Control display brightness from a Tauri application.",
   "license": "MIT OR Apache-2.0",
-  "authors": [
-    "marrionesa"
-  ],
+  "author": "marrionesa",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/marrionesa/tauri-plugin-brightness.git"
@@ -26,18 +24,20 @@
   "files": [
     "dist-js",
     "README.md",
-    "LICENSE"
+    "LICENSE-MIT",
+    "LICENSE-APACHE"
   ],
   "keywords": [
     "tauri",
     "tauri-plugin",
     "brightness",
     "ddc-ci",
-    "display"
+    "display",
+    "monitor"
   ],
   "scripts": {
     "build": "rollup -c",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.1"
